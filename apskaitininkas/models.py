@@ -13,7 +13,6 @@ class Category(models.Model):
         return self.name
 
 
-# Produktų modelis
 class ProductOrService(models.Model):
     name = models.CharField('Product or service name', max_length=255)
     description = models.TextField('Product or service description', max_length=500, blank=True)
@@ -24,7 +23,6 @@ class ProductOrService(models.Model):
         return self.name
 
 
-# Klientų modelis
 class Client(models.Model):
     name = models.CharField('Company or person name', max_length=255)
     company_id = models.CharField('Company id', max_length=20, blank=True)
