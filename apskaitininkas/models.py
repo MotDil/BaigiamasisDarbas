@@ -69,7 +69,6 @@ class IssuedInvoice(models.Model):
         return 0
 
     def calculate_total(self):
-        # Apskaičiuoja bendrą sumą su PVM
         subtotal = self.calculate_subtotal()
         vat_amount = self.calculate_vat_amount()
         return subtotal + vat_amount
