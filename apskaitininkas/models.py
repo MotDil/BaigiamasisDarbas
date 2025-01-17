@@ -37,7 +37,6 @@ class Client(models.Model):
         return self.name
 
 
-# Sąskaitų modelis
 class IssuedInvoice(models.Model):
     STATUS_CHOICES = [
         ('PA', 'Paid'),
