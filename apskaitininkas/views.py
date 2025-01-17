@@ -143,7 +143,7 @@ def edit_received_invoice(request, invoice_id):
         form = ReceivedInvoiceForm(request.POST, instance=invoice)
         if form.is_valid():
             form.save()
-            return redirect('received_invoices')  # Grįžti į sąskaitų sąrašą
+            return redirect('received_invoices')
     else:
         form = ReceivedInvoiceForm(instance=invoice)
     return render(request, 'edit_received_invoice.html', {'form': form, 'invoice': invoice})
