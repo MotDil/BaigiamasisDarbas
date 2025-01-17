@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Invoices{% endblock %}
+{% block content %}
+{% load static %}
+<div class="mt-4" style="margin-left: 0; padding-left: 0;">
+    <div class="list-group" style="width: auto;">
+        <div class="list-group">
+            <a href="{% url 'issued_invoices' %}" class="list-group-item list-group-item-action custom-btn-dark">Issued Invoices</a>
+            <a href="{% url 'received_invoices' %}" class="list-group-item list-group-item-action custom-btn-dark">Received Invoices</a>
+            <a href="{% url 'create_invoice' %}" class="list-group-item list-group-item-action custom-btn-dark">Create Invoice</a>
+            <a href="{% url 'register_invoice' %}" class="list-group-item list-group-item-action custom-btn-dark">Register Invoice</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+{% load static %}
+<h1>Clients</h1>
+<form method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-6">
+            <input type="text" name="query" class="form-control" placeholder="Search by name, company ID, or email..." value="{{ request.GET.q|default:'' }}">
+        </div>
+        <div class="col-md-4">
+            <select name="sort" class="form-control">
+                <option value="">Sort by...</option>
+                <option value="name_asc" {% if request.GET.sort == "name_asc" %}selected{% endif %}>Name (A-Z)</option>
+                <option value="name_desc" {% if request.GET.sort == "name_desc" %}selected{% endif %}>Name (Z-A)</option>
+                <option value="company_id_asc" {% if request.GET.sort == "company_id_asc" %}selected{% endif %}>Company ID (Ascending)</option>
+                <option value="company_id_desc" {% if request.GET.sort == "company_id_desc" %}selected{% endif %}>Company ID (Descending)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="custom-btn-dark w-100">Filter</button>
+        </div>
+    </div>
+</form>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Company ID</th>
+            <th>Email</th>
+            <th>VAT number</th>
+            <th>Phone</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client.id }}</td>
+            <td>{{ client.name }}</td>
+            <td>{{ client.company_id }}</td>
+            <td>{{ client.email }}</td>
+            <td>{{ client.vat_number }}</td>
+            <td>{{ client.phone }}</td>
+            <td>{{ client.address }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if clients.has_previous %}
+            <li class="page-item">
+                <a class="page-link custom-btn-dark" href="?page={{ clients.previous_page_number }}&q={{ request.GET.query }}&sort={{ request.GET.sort }}">Previous</a>
+            </li>
+        {% endif %}
+        {% for num in clients.paginator.page_range %}
+            <li class="page-item {% if num == clients.number %}active{% endif %}">
+                <a class="page-link {% if num == clients.number %}custom-btn-dark{% else %}custom-btn-dark{% endif %}" href="?page={{ num }}&q={{ request.GET.query }}&sort={{ request.GET.sort }}">{{ num }}</a>
+            </li>
+        {% endfor %}
+        {% if clients.has_next %}
+            <li class="page-item">
+                <a class="page-link custom-btn-dark" href="?page={{ clients.next_page_number }}&q={{ request.GET.query }}&sort={{ request.GET.sort }}">Next</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endblock %}

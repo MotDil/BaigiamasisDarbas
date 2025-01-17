@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Edit Received Invoice{% endblock %}
+{% block content %}
+<h1>Edit Received Invoice</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-dark">Save Changes</button>
+</form>
+{% endblock %}

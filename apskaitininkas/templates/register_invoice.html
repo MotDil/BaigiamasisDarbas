@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Register Invoice{% endblock %}
+{% block content %}
+<h1 class="mt-4">Register a New Invoice</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-dark mt-3">Register Invoice</button>
+</form>
+{% endblock %}

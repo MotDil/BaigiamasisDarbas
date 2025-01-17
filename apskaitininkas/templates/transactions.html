@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Transactions{% endblock %}
+{% block content %}
+<h1>Transactions</h1>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Transaction Type</th>
+            <th>Company ID</th>
+            <th>Payer/Payee</th>
+            <th>Amount Without VAT</th>
+            <th>VAT Amount</th>
+            <th>Total Amount</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transaction in transactions %}
+        <tr>
+            <td>{{ transaction.id }}</td>
+            <td>{{ transaction.transaction_type }}</td>
+            <td>{{ transaction.company_id }}</td>
+            <td>{{ transaction.related_party }}</td>
+            <td>{{ transaction.amount_without_vat }}</td>
+            <td>{{ transaction.vat_amount }}</td>
+            <td>
+                <span style="color: {% if transaction.total_amount < 0 %}red{% else %}green{% endif %};">
+                    {{ transaction.total_amount }}
+                </span>
+            </td>
+            <td>{{ transaction.date }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

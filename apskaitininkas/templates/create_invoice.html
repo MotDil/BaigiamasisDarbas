@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Create New Invoice{% endblock %}
+{% block content %}
+<h1>Create New Invoice</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <h3>Invoice Lines</h3>
+    {{ formset.management_form }}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in formset %}
+            <tr>
+                <td>{{ form.product }}</td>
+                <td>{{ form.quantity }}</td>
+                <td>{{ form.price }}</td>
+                <td>{{ form.DELETE }}</td>
+                <td style="display: none;">{{ form.id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-dark">Create invoice</button>
+</form>
+{% endblock %}
+

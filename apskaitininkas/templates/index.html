@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Apskaitininkas{% endblock %}
+{% block content %}
+<h1>Welcome</h1>
+<p>Right now pending:</p>
+  <ul>
+    <li><strong>Received invoices:</strong> {{ num_receivedinvoices_pen }}</li>
+    <li><strong>Issued invoices:</strong> {{ num_issuedinvoices_pen }}</li>
+  </ul>
+{% endblock %}
