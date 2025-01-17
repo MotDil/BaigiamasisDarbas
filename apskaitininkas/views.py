@@ -33,14 +33,12 @@ def clients(request):
     query = request.GET.get('query')
     sort = request.GET.get('sort')
     clients = Client.objects.all()
-
     if query:
         clients = clients.filter(
             Q(name__icontains=query) |
             Q(company_id__icontains=query) |
             Q(email__icontains=query)
         )
-
     if sort == 'name_asc':
         clients = clients.order_by('name')
     elif sort == 'name_desc':
@@ -68,13 +66,11 @@ def categories(request, category_id):
     query = request.GET.get('query')
     sort = request.GET.get('sort')
     products = ProductOrService.objects.filter(category=category)
-
     if query:
         products = products.filter(
             Q(name__icontains=query) |
             Q(price__icontains=query)
         )
-
     if sort == 'name_asc':
         products = products.order_by('name')
     elif sort == 'name_desc':
@@ -83,16 +79,13 @@ def categories(request, category_id):
         products = products.order_by('price')
     elif sort == 'price_desc':
         products = products.order_by('-price')
-
     paginator = Paginator(products, 10)
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
-
     context = {
         'category': category,
         'products': products,
     }
-
     return render(request, 'categories.html', context)
 
 
@@ -114,39 +107,31 @@ def received_invoices(request):
 
 def edit_issued_invoice(request, pk):
     invoice = get_object_or_404(IssuedInvoice, pk=pk)
-    form = IssuedInvoiceForm(instance=invoice)
-    formset = IssuedInvoiceLineFormSet(instance=invoice)
-
     if request.method == "POST":
         form = IssuedInvoiceForm(request.POST, instance=invoice)
         formset = IssuedInvoiceLineFormSet(request.POST, instance=invoice)
-
         if form.is_valid() and formset.is_valid():
             invoice = form.save()
-            formset.instance = invoice
-            for form in formset:
-                if form.cleaned_data and not all(value == "" for value in form.cleaned_data.values()):
-                    form.save()
+            invoice_lines = formset.save(commit=False)
+            for line in invoice_lines:
+                line.invoice = invoice
+                line.save()
+            formset.save()
             return redirect("issued_invoices")
-
-    context = {
-        "form": form,
-        "formset": formset,
-        "invoice": invoice,
-    }
-    return render(request, "edit_issued_invoice.html", context=context)
+    else:
+        form = IssuedInvoiceForm(instance=invoice)
+        formset = IssuedInvoiceLineFormSet(instance=invoice)
+    return render(request, "edit_issued_invoice.html", {"form": form, "formset": formset, "invoice": invoice})
 
 
 def edit_received_invoice(request, invoice_id):
     invoice = get_object_or_404(ReceivedInvoice, id=invoice_id)
-    if request.method == "POST":
-        form = ReceivedInvoiceForm(request.POST, instance=invoice)
-        if form.is_valid():
-            form.save()
-            return redirect('received_invoices')  # Grįžti į sąskaitų sąrašą
-    else:
-        form = ReceivedInvoiceForm(instance=invoice)
-    return render(request, 'edit_received_invoice.html', {'form': form, 'invoice': invoice})
+    form = ReceivedInvoiceForm(request.POST or None, request.FILES or None, instance=invoice)
+    if form.is_valid():
+        form.save()
+        return redirect('received_invoices')
+    context = {"form": form, "invoice": invoice}
+    return render(request, "edit_received_invoice.html", context)
 
 
 def create_invoice(request):
@@ -159,30 +144,52 @@ def create_invoice(request):
             for line in invoice_lines:
                 line.invoice = invoice
                 line.save()
-            return redirect('issued_invoices')
+            return redirect("issued_invoices")
     else:
         form = IssuedInvoiceForm()
         formset = IssuedInvoiceLineFormSet()
-    return render(request, 'create_invoice.html', {'form': form, 'formset': formset})
+    return render(request, "create_invoice.html", {"form": form, "formset": formset})
 
 
 def register_invoice(request):
     form = ReceivedInvoiceForm(request.POST or None, request.FILES or None)
-
     if form.is_valid():
         form.save()
         return redirect('received_invoices')
-
-    context = {
-        'form': form,
-    }
-    return render(request, 'register_invoice.html', context)
+    context = {"form": form}
+    return render(request, "register_invoice.html", context)
 
 
 def transactions(request):
+    query = request.GET.get('query')
+    sort = request.GET.get('sort')
     transactions = Transaction.objects.all()
+    if query:
+        transactions = transactions.filter(
+            Q(id__icontains=query) |
+            Q(company_id__icontains=query) |
+            Q(issued_invoice__client__name__icontains=query) |
+            Q(received_invoice__supplier__icontains=query)
+        )
+
+    if sort == 'amount_asc':
+        transactions = transactions.order_by('total_amount')
+    elif sort == 'amount_desc':
+        transactions = transactions.order_by('-total_amount')
+    elif sort == 'related_party_asc':
+        transactions = sorted(transactions, key=lambda t: t.related_party() or '')
+    elif sort == 'related_party_desc':
+        transactions = sorted(transactions, key=lambda t: t.related_party() or '', reverse=True)
+
+    paginator = Paginator(transactions, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'transactions': transactions,
+        'transactions': page_obj,
+        'query': query,
+        'sort': sort,
+        'page_obj': page_obj,
     }
     return render(request, 'transactions.html', context)
 
@@ -190,6 +197,7 @@ def transactions(request):
 @login_required
 def custom_login(request):
     return render(request, 'index.html')
+
 
 def custom_logout(request):
     logout(request)

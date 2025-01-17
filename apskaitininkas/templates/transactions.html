@@ -2,13 +2,37 @@
 {% block title %}Transactions{% endblock %}
 {% block content %}
 <h1>Transactions</h1>
+<form method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-6">
+            <input
+                type="text"
+                name="query"
+                class="form-control"
+                placeholder="Search by ID or Name..."
+                value="{{ request.GET.query|default:'' }}">
+        </div>
+        <div class="col-md-4">
+            <select name="sort" class="form-control">
+                <option value="">Sort by...</option>
+                <option value="amount_asc" {% if request.GET.sort == "amount_asc" %}selected{% endif %}>Amount (Low to High)</option>
+                <option value="amount_desc" {% if request.GET.sort == "amount_desc" %}selected{% endif %}>Amount (High to Low)</option>
+                <option value="related_party_asc" {% if request.GET.sort == "related_party_asc" %}selected{% endif %}>Payer/Payee (A-Z)</option>
+                <option value="related_party_desc" {% if request.GET.sort == "related_party_desc" %}selected{% endif %}>Payer/Payee (Z-A)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-dark w-100">Filter</button>
+        </div>
+    </div>
+</form>
 <table class="table table-striped">
     <thead>
         <tr>
             <th>ID</th>
             <th>Transaction Type</th>
-            <th>Company ID</th>
             <th>Payer/Payee</th>
+            <th>Company ID</th>
             <th>Amount Without VAT</th>
             <th>VAT Amount</th>
             <th>Total Amount</th>
@@ -16,12 +40,12 @@
         </tr>
     </thead>
     <tbody>
-        {% for transaction in transactions %}
+        {% for transaction in page_obj %}
         <tr>
             <td>{{ transaction.id }}</td>
             <td>{{ transaction.transaction_type }}</td>
-            <td>{{ transaction.company_id }}</td>
             <td>{{ transaction.related_party }}</td>
+            <td>{{ transaction.company_id }}</td>
             <td>{{ transaction.amount_without_vat }}</td>
             <td>{{ transaction.vat_amount }}</td>
             <td>
@@ -34,4 +58,24 @@
         {% endfor %}
     </tbody>
 </table>
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link custom-btn-dark" href="?page={{ page_obj.previous_page_number }}&query={{ query }}&sort={{ sort }}">Previous</a>
+        </li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        <li class="page-item {% if num == page_obj.number %}active{% endif %}">
+            <a class="page-link custom-btn-dark" href="?page={{ num }}&query={{ query }}&sort={{ sort }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link custom-btn-dark" href="?page={{ page_obj.next_page_number }}&query={{ query }}&sort={{ sort }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
 {% endblock %}
+

@@ -24,7 +24,6 @@ class ProductOrService(models.Model):
         return self.name
 
 
-# Klientų modelis
 class Client(models.Model):
     name = models.CharField('Company or person name', max_length=255)
     company_id = models.CharField('Company id', max_length=20, blank=True)
@@ -37,7 +36,6 @@ class Client(models.Model):
         return self.name
 
 
-# Sąskaitų modelis
 class IssuedInvoice(models.Model):
     STATUS_CHOICES = [
         ('PA', 'Paid'),
@@ -72,7 +70,6 @@ class IssuedInvoice(models.Model):
         return 0
 
     def calculate_total(self):
-        # Apskaičiuoja bendrą sumą su PVM
         subtotal = self.calculate_subtotal()
         vat_amount = self.calculate_vat_amount()
         return subtotal + vat_amount
@@ -171,3 +168,10 @@ class Transaction(models.Model):
     date = models.DateField('Transaction date', auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def related_party(self):
+        if self.issued_invoice and self.issued_invoice.client:
+            return self.issued_invoice.client.name
+        if self.received_invoice and self.received_invoice.supplier:
+            return self.received_invoice.supplier
+        return "Unknown"
